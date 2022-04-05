@@ -11,14 +11,19 @@ func main() {
 	app := gin.Default()
 
 	models.ConexionABBDD()
-	//GETS
-	app.GET("/usuarios", controllers.ConseguirUsuarios)
-	app.GET("/articulos", controllers.ConseguirArticulos)
-	app.GET("/almacenes", controllers.ConseguirAlmacenes)
-	app.GET("/cantidades", controllers.ConseguirAlmacenesCantidades)
-	//POSTS
-	app.POST("/articulos/crear", controllers.CrearArticulos)
-	app.POST("/almacenes/crear", controllers.CrearAlmacenes)
-	app.POST("/cantidades/crear", controllers.CrearAlmacenAlmacenArticulosCantidades)
+
+	// Simple group: v1
+	v1 := app.Group("/v1")
+	{
+		//Usuario
+		v1.GET("/user", controllers.ConseguirUsuarios)
+		v1.GET("/user/:userID", controllers.ConseguirUsuario)
+		v1.POST("/user", controllers.CrearUsuario)
+		v1.PUT("/user/:userID", controllers.ActualizarUsuario)
+		v1.DELETE("/user/:userID", controllers.BorrarUsuario)
+
+		v1.POST("/login", controllers.Login)
+	}
+
 	app.Run()
 }

@@ -7,3 +7,9 @@ type Usuarios struct {
 	Contrasenia   string `json:"contrasenia"`
 	Activo        bool   `json:"activo"`
 }
+
+type UsuarioToken struct {
+	UsuarioId uint     `json:"UsuarioId" gorm:"primary_key"`
+	Usuario   Usuarios `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Token     string   `json:"token"`
+}

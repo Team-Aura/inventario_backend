@@ -15,9 +15,9 @@ func ConexionABBDD() {
 		panic("Fallo en la conexion, abortando")
 	}
 	database.AutoMigrate(&Usuarios{})
+	database.AutoMigrate(&UsuarioToken{})
 	database.AutoMigrate(&Articulos{})
 	database.AutoMigrate(&Almacenes{})
 	database.AutoMigrate(&AlmacenAlmacenArticulosCantidades{})
 	DB = database
-
 }
