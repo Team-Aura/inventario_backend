@@ -9,16 +9,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type CrearUsuarioInput struct {
-	Nombre      string `json:"nombre" binding:"required"`
-	Contrasenia string `json:"contrasenia" binding:"required"`
-}
-
-type UserInput struct {
-	NombreUsuario string `json:"nombre" binding:"required"`
-	Contrasenia   string `json:"contrasenia" binding:"required"`
-}
-
 func ConseguirUsuarios(c *gin.Context) {
 	var usuarios []models.Usuarios
 	models.DB.Find(&usuarios)
@@ -34,7 +24,7 @@ func ConseguirUsuario(c *gin.Context) {
 }
 
 func CrearUsuario(c *gin.Context) {
-	var inputUsuario CrearUsuarioInput
+	var inputUsuario UserInput
 	if err := c.ShouldBindJSON(&inputUsuario); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -43,28 +33,43 @@ func CrearUsuario(c *gin.Context) {
 	var passswrd_hash, err = HashPassword(inputUsuario.Contrasenia)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"meessage": "No se ha podido crear el usuario"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "No se ha podido crear el usuario"})
 	} else {
 		// Creamos el articulo
-		usuario := models.Usuarios{NombreUsuario: inputUsuario.Nombre, Contrasenia: passswrd_hash}
+		usuario := models.Usuarios{NombreUsuario: inputUsuario.NombreUsuario, Contrasenia: passswrd_hash, Activo: true}
 		models.DB.Create(&usuario)
-		c.JSON(http.StatusOK, gin.H{"meessage": "Usuario creado con exito"})
+		c.JSON(http.StatusOK, gin.H{"message": "Usuario creado con exito"})
 	}
 
 }
 
 func ActualizarUsuario(c *gin.Context) {
+	var input UserInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	var usuario models.Usuarios
-	id := c.Param("userID")
+
+	id := c.Param("UserID")
 	models.DB.Find(&usuario, id)
+	var passswrd_hash, err = HashPassword(input.Contrasenia)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "No se ha podido actualizar el usuario"})
+		return
+	}
+	usuario.NombreUsuario = input.NombreUsuario
+	usuario.Contrasenia = passswrd_hash
+	models.DB.Save(&usuario)
+	c.JSON(http.StatusOK, gin.H{"message": "Usuario actualizado con exito"})
 }
 
 func BorrarUsuario(c *gin.Context) {
 	var usuario models.Usuarios
 	id := c.Param("userID")
-	print(id)
+
 	models.DB.Delete(&usuario, id)
-	c.JSON(http.StatusOK, gin.H{"meessage": "Usuario borrado con exito"})
+	c.JSON(http.StatusOK, gin.H{"message": "Usuario borrado con exito"})
 }
 
 func HashPassword(password string) (string, error) {
@@ -93,9 +98,8 @@ func Login(c *gin.Context) {
 	if CheckPasswordHash(password, usuario.Contrasenia) {
 		var token = services.JWTAuthService().GenerateToken(usuario.NombreUsuario, true)
 		var usuarioToken models.UsuarioToken
-
-		usuarioToken.Usuario.Id = usuario.Id
 		usuarioToken.Token = token
+		usuarioToken.Usuario = usuario
 		models.DB.Create(&usuarioToken)
 
 		c.JSON(http.StatusOK, gin.H{"message": token})

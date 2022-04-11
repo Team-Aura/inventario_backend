@@ -28,6 +28,6 @@ func ConexionABBDD() {
 	database.AutoMigrate(&UsuarioToken{})
 	database.AutoMigrate(&Articulos{})
 	database.AutoMigrate(&Almacenes{})
-	database.AutoMigrate(&AlmacenAlmacenArticulosCantidades{})
+	database.AutoMigrate(&AlmacenArticulosCantidades{})
 	DB = database
 }

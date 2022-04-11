@@ -1,15 +1,19 @@
 package models
 
+import "gorm.io/gorm"
+
 type Usuarios struct {
-	Id            uint   `json:"id" gorm:"primary_key"`
+	gorm.Model
+	Id            uint   `json:"-" gorm:"primary_key"`
 	NombreUsuario string `json:"nombre"`
 	Codigo        string `json:"codigo"`
-	Contrasenia   string `json:"contrasenia"`
+	Contrasenia   string `json:"-"`
 	Activo        bool   `json:"activo"`
 }
 
 type UsuarioToken struct {
-	UsuarioId uint     `json:"UsuarioId" gorm:"primary_key"`
-	Usuario   Usuarios `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	Token     string   `json:"token"`
+	gorm.Model
+	UsuarioID int
+	Usuario   Usuarios `gorm:"References:Id"`
+	Token     string   `json:"token" gorm:"primary_key"`
 }

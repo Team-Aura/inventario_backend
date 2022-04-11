@@ -9,16 +9,16 @@ type Articulos struct {
 type Almacenes struct {
 	Id        uint   `json:"id" gorm:"primary_key"`
 	Concepto  string `json:"concepto"`
-	Activo    bool   `json:"activo"`
-	UsuarioId int
-	Usuario   Usuarios `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	UsuarioID int
+	Usuario   Usuarios `gorm:"References:Id"`
+	Activo    bool     `json:"activo"`
 }
 
-type AlmacenAlmacenArticulosCantidades struct {
+type AlmacenArticulosCantidades struct {
 	Id         uint `json:"id" gorm:"primary_key"`
-	AlmacenId  int
-	Almacen    Almacenes `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	ArticuloId int
-	Articulo   Articulos `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	AlmacenID  int
+	Almacen    Almacenes `gorm:"References:Id"`
+	ArticuloID int
+	Articulo   Articulos `gorm:"References:Id"`
 	Cantidad   float32   `json:"cantidad"`
 }
