@@ -32,7 +32,7 @@ func ConseguirAlmacenes(c *gin.Context) {
 func ConseguirAlmacen(c *gin.Context) {
 	var almacen models.Almacenes
 	id := c.Param("almacenID")
-	models.DB.Find(&almacen, id)
+	models.DB.Preload("Usuario").Find(&almacen, id)
 	c.JSON(http.StatusOK, gin.H{"almacen": almacen})
 
 }
@@ -47,7 +47,7 @@ func ConseguirAlmacenesCantidades(c *gin.Context) {
 func ConseguirAlmacenesCantidad(c *gin.Context) {
 	var almacenartcant models.AlmacenArticulosCantidades
 	id := c.Param("ID")
-	models.DB.Find(&almacenartcant, id)
+	models.DB.Preload("Almacen").Preload("Articulo").Preload("Almacen.Usuario").Find(&almacenartcant, id)
 
 	c.JSON(http.StatusOK, gin.H{"almacen": almacenartcant})
 
@@ -167,7 +167,6 @@ func ActualizarAlmacen(c *gin.Context) {
 	models.DB.Find(&almacen, id)
 	almacen.Concepto = input.Concepto
 	almacen.Activo = input.Activo
-	//almacen.UsuarioId = input.Usuario
 	models.DB.Save(&almacen)
 	c.JSON(http.StatusOK, gin.H{"message": "Almacén actualizado con exito"})
 }
@@ -183,13 +182,7 @@ func ActualizarAlmacenArticulosCantidad(c *gin.Context) {
 
 	id := c.Param("Id")
 	models.DB.Find(&almacenart, id)
-	var almacen models.Almacenes
-	models.DB.Find(&almacen, input.AlmacenId)
-	var articulo models.Articulos
-	models.DB.Find(&articulo, input.ArticuloId)
-	//almacenart.AlmacenesID = uint(input.AlmacenId)
-	//almacenart.ArticulosID = uint(input.ArticuloId)
 	almacenart.Cantidad = input.Cantidad
-	//models.DB.Save(&almacen)
+	models.DB.Save(&almacenart)
 	c.JSON(http.StatusOK, gin.H{"message": "Deposito actualizado con exito"})
 }
